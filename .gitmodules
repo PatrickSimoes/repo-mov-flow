@@ -1,0 +1,6 @@
+[submodule "frontend-mov-flow"]
+	path = frontend-mov-flow
+	url = git@github.com:PatrickSimoes/frontend-mov-flow.git
+[submodule "api-mov-flow"]
+	path = api-mov-flow
+	url = git@github.com:PatrickSimoes/api-mov-flow.git
