@@ -1,13 +1,9 @@
 # MOV FLOW
 
-Repositorio pai do projeto MOV FLOW, organizado com submodulos Git.
+Repositorio pai do projeto MOV FLOW, organizado com submodulos Git:
 
-## Objetivo
-
-Orquestrar uma aplicacao full stack para operacao logistica e financeira multi-tenant:
-
-- `frontend-mov-flow`: interface web (Vue 3 + Vuetify)
-- `api-mov-flow`: API backend (NestJS + TypeORM + PostgreSQL)
+- `frontend-mov-flow` (Vue 3 + Vuetify)
+- `api-mov-flow` (NestJS + TypeORM + PostgreSQL)
 
 ## Estrutura
 
@@ -15,22 +11,18 @@ Orquestrar uma aplicacao full stack para operacao logistica e financeira multi-t
 repo-mov-flow/
 |-- frontend-mov-flow/   # submodulo Git
 |-- api-mov-flow/        # submodulo Git
+|-- docker-compose.prod.yml
 `-- .gitmodules
 ```
-
-## Repositorios vinculados
-
-- Frontend: `git@github.com:PatrickSimoes/frontend-mov-flow.git`
-- API: `git@github.com:PatrickSimoes/api-mov-flow.git`
 
 ## Pre-requisitos
 
 - Git 2.40+
 - Node.js 22+
 - npm 10+
-- Docker + Docker Compose (para banco local da API)
+- Docker + Docker Compose
 
-## Como clonar
+## Clone com submodulos
 
 ```bash
 git clone --recurse-submodules git@github.com:PatrickSimoes/repo-mov-flow.git
@@ -43,9 +35,9 @@ Se voce ja clonou sem submodulos:
 git submodule update --init --recursive
 ```
 
-## Como subir localmente
+## Desenvolvimento local
 
-1. API
+1. API:
 
 ```bash
 cd api-mov-flow
@@ -56,7 +48,7 @@ npm run migration:run
 npm run start:dev
 ```
 
-2. Frontend
+2. Frontend:
 
 ```bash
 cd ../frontend-mov-flow
@@ -64,22 +56,41 @@ npm install
 npm run dev
 ```
 
-## Fluxo de trabalho com submodulos
+## Publicacao (Docker Compose)
 
-- Alteracoes de codigo devem ser feitas dentro de `frontend-mov-flow` ou `api-mov-flow`.
-- O repositorio pai versiona:
-  - `.gitmodules`
-  - ponteiros (commits) dos submodulos
+Este repositorio ja inclui um `docker-compose.prod.yml` para subir stack completa:
 
-Para atualizar ponteiros no repo pai:
+- PostgreSQL
+- API (com migration automatica na inicializacao)
+- Frontend (Nginx + proxy para API)
+
+### 1) Preparar variaveis
 
 ```bash
-git add .gitmodules frontend-mov-flow api-mov-flow
-git commit -m "Update submodule pointers"
-git push
+cp .env.production.example .env.production
+cp api-mov-flow/.env.production.example api-mov-flow/.env.production
 ```
 
-## Observacoes
+Ajuste os valores de senha, JWT e dominio permitido em `CORS_ORIGINS`.
+Os `DB_USER`, `DB_PASS` e `DB_NAME` do arquivo raiz devem ser iguais aos usados pela API.
 
-- Este repositorio nao concentra logica de negocio.
-- Documentacao tecnica detalhada fica dentro de cada submodulo.
+### 2) Subir stack
+
+```bash
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
+```
+
+### 3) Validar
+
+- Frontend: `http://localhost:${FRONTEND_PORT}` (default `8080`)
+- API Health: `http://localhost:${FRONTEND_PORT}/api/v1/health`
+
+## Fluxo com submodulos
+
+Alteracoes de codigo devem ser feitas dentro de cada submodulo e depois refletidas no repo pai:
+
+```bash
+git add frontend-mov-flow api-mov-flow
+git commit -m "chore(submodule): update pointers"
+git push
+```
